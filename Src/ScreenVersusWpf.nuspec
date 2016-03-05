@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>ScreenVersusWpf</id>
+    <version>$version$</version>
+    <title>ScreenVersusWpf</title>
+    <authors>rstarkov</authors>
+    <owners>rstarkov</owners>
+    <projectUrl>https://github.com/rstarkov/ScreenVersusWpf/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>An experimental library which enables points, sizes and rectangles to be stored in and manipulated via distinct types depending on whether they are in screen or WPF coordinate space, thus avoiding confusion and aiding readability. Also provides utility methods related to screen bounds, resolution etc.</description>
+    <copyright>Copyright 2016 Roman Starkov</copyright>
+    <tags>C# WPF DPI</tags>
+  </metadata>
+</package>

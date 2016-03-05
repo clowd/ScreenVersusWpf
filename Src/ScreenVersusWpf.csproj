@@ -7,8 +7,8 @@
     <ProjectGuid>{55DBE16D-C08F-458C-B3CE-84AA43B30196}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ScreenVsWpf</RootNamespace>
-    <AssemblyName>ScreenVsWpf</AssemblyName>
+    <RootNamespace>ScreenVersusWpf</RootNamespace>
+    <AssemblyName>ScreenVersusWpf</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
