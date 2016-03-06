@@ -6,19 +6,30 @@ namespace ScreenVersusWpf
 {
     public static class ScreenTools
     {
-        static ScreenTools()
+        private static double _dpiZoom = 0;
+        public static double DpiZoom
+        {
+            get
+            {
+                if (_dpiZoom == 0)
+                    throw new InvalidOperationException("You must call ScreenTools.InitializeDpi before calling this method.");
+                return _dpiZoom;
+            }
+        }
+
+        public static void InitializeDpi(int screenDpi)
+        {
+            _dpiZoom = screenDpi / 96.0;
+        }
+
+        public static int GetScreenDpi()
         {
             // sourced from caesay\Clowd
             IntPtr dc = WinAPI.GetDC(IntPtr.Zero);
-            DpiX = (double) WinAPI.GetDeviceCaps(dc, WinAPI.DEVICECAP.LOGPIXELSX);
-            DpiY = (double) WinAPI.GetDeviceCaps(dc, WinAPI.DEVICECAP.LOGPIXELSY);
-            DpiZoom = DpiX / 96.0;
+            int dpi = WinAPI.GetDeviceCaps(dc, WinAPI.DEVICECAP.LOGPIXELSX);
             WinAPI.ReleaseDC(IntPtr.Zero, dc);
+            return dpi;
         }
-
-        public static double DpiZoom { get; private set; }
-        public static double DpiX { get; private set; }
-        public static double DpiY { get; private set; }
 
         public static int WpfToScreen(double wpfUnits)
         {
