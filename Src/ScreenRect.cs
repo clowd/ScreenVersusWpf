@@ -11,6 +11,11 @@ namespace ScreenVersusWpf
         public int Width { get; set; }
         public int Height { get; set; }
 
+        public int Right { get { return Left + Width; } set { Width = value - Left; } }
+        public int Bottom { get { return Top + Height; } set { Height = value - Top; } }
+
+        public static ScreenRect Empty => new ScreenRect(0, 0, 0, 0);
+
         public ScreenRect(int x, int y, int width, int height)
         {
             Left = x;
@@ -43,7 +48,7 @@ namespace ScreenVersusWpf
 
         public override bool Equals(object obj)
         {
-            return obj == null ? false : !(obj is ScreenRect) ? false : (this == (ScreenRect) obj);
+            return obj == null ? false : !(obj is ScreenRect) ? false : (this == (ScreenRect)obj);
         }
 
         public override int GetHashCode()
@@ -86,9 +91,37 @@ namespace ScreenVersusWpf
 
         #region Utility
 
+        public bool Contains(ScreenPoint pt)
+        {
+            return pt.X >= Left && pt.X < Right && pt.Y >= Top && pt.Y < Bottom;
+        }
+
+        public bool IntersectsWith(ScreenRect rect)
+        {
+            // Touching ScreenRects do not intersect (different to WpfRect)
+            return !IsEmpty() && !rect.IsEmpty() && Left < rect.Right && rect.Left < Right && Top < rect.Bottom && rect.Top < Bottom;
+        }
+
+        public bool IsEmpty()
+        {
+            return Width == 0 && Height == 0;
+        }
+
         public ScreenRect Grow(int amount)
         {
             return new ScreenRect(Left - amount, Top - amount, Width + 2 * amount, Height + 2 * amount);
+        }
+
+        public ScreenRect Intersect(ScreenRect rect)
+        {
+            var result = new ScreenRect();
+            result.Left = Math.Max(Left, rect.Left);
+            result.Top = Math.Max(Top, rect.Top);
+            result.Right = Math.Min(Left + Width, rect.Left + rect.Width);
+            result.Bottom = Math.Min(Top + Height, rect.Top + rect.Height);
+            if (result.Width < 0 || result.Height < 0)
+                return ScreenRect.Empty;
+            return result;
         }
 
         #endregion
