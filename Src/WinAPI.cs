@@ -20,23 +20,6 @@ namespace ScreenVersusWpf
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetCursorPos(out POINT lpPoint);
 
-        /// <summary>
-        ///     Retrieves a handle to the display monitor that has the largest area of intersection with a specified
-        ///     rectangle.</summary>
-        /// <param name="lprc">
-        ///     A pointer to a RECT structure that specifies the rectangle of interest in virtual-screen coordinates.</param>
-        /// <param name="dwFlags">
-        ///     Determines the function's return value if the rectangle does not intersect any display monitor.</param>
-        /// <returns>
-        ///     If the rectangle intersects one or more display monitor rectangles, the return value is an HMONITOR handle to
-        ///     the display monitor that has the largest area of intersection with the rectangle. If the rectangle does not
-        ///     intersect a display monitor, the return value depends on the value of dwFlags.</returns>
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern IntPtr MonitorFromRect(ref RECT lprc, MonitorOptions dwFlags);
-
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern IntPtr MonitorFromPoint(POINT pt, MonitorOptions dwFlags);
-
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
 
@@ -64,6 +47,9 @@ namespace ScreenVersusWpf
         {
             LOGPIXELSX = 88,
             LOGPIXELSY = 90,
+            VERTRES = 10,
+            DESKTOPVERTRES = 117,
+            DESKTOPHORZRES = 118,
         }
 
         #endregion Enums / constants

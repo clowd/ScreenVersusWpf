@@ -48,7 +48,7 @@ namespace ScreenVersusWpf
 
         public override bool Equals(object obj)
         {
-            return obj == null ? false : !(obj is ScreenRect) ? false : (this == (ScreenRect)obj);
+            return obj == null ? false : !(obj is ScreenRect) ? false : (this == (ScreenRect) obj);
         }
 
         public override int GetHashCode()
@@ -75,16 +75,14 @@ namespace ScreenVersusWpf
             );
         }
 
-        internal static ScreenRect FromSystem(D.Rectangle rect)
+        public static ScreenRect FromSystem(D.Rectangle rect)
         {
-            var screen = W.Forms.SystemInformation.VirtualScreen;
-            return new ScreenRect(rect.X - screen.X, rect.Y - screen.Y, rect.Width, rect.Height);
+            return new ScreenRect(rect.X - ScreenTools.VirtualScreenSystemLeft, rect.Y - ScreenTools.VirtualScreenSystemTop, rect.Width, rect.Height);
         }
 
-        internal D.Rectangle ToSystem()
+        public D.Rectangle ToSystem()
         {
-            var screen = W.Forms.SystemInformation.VirtualScreen;
-            return new D.Rectangle(Left + screen.X, Top + screen.Y, Width, Height);
+            return new D.Rectangle(Left + ScreenTools.VirtualScreenSystemLeft, Top + ScreenTools.VirtualScreenSystemTop, Width, Height);
         }
 
         #endregion

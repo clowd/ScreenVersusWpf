@@ -63,16 +63,14 @@ namespace ScreenVersusWpf
             return new ScreenSize(X, Y);
         }
 
-        internal static ScreenPoint FromSystem(D.Point point)
+        public static ScreenPoint FromSystem(D.Point point)
         {
-            var screen = System.Windows.Forms.SystemInformation.VirtualScreen;
-            return new ScreenPoint(point.X - screen.X, point.Y - screen.Y);
+            return new ScreenPoint(point.X - ScreenTools.VirtualScreenSystemLeft, point.Y - ScreenTools.VirtualScreenSystemTop);
         }
 
-        internal D.Point ToSystem()
+        public D.Point ToSystem()
         {
-            var screen = System.Windows.Forms.SystemInformation.VirtualScreen;
-            return new D.Point(X + screen.X, Y + screen.Y);
+            return new D.Point(X + ScreenTools.VirtualScreenSystemLeft, Y + ScreenTools.VirtualScreenSystemTop);
         }
 
         #endregion Conversions
