@@ -58,34 +58,34 @@ namespace ScreenVersusWpf
 
         #endregion
 
-        #region Conversions
+        //#region Conversions
 
-        public static implicit operator W.Int32Rect(ScreenRect rect)
-        {
-            return new W.Int32Rect(rect.Left, rect.Top, rect.Width, rect.Height);
-        }
+        //public static implicit operator W.Int32Rect(ScreenRect rect)
+        //{
+        //    return new W.Int32Rect(rect.Left, rect.Top, rect.Width, rect.Height);
+        //}
 
-        public WpfRect ToWpfRect()
-        {
-            return new WpfRect(
-                Left / ScreenTools.DpiZoom,
-                Top / ScreenTools.DpiZoom,
-                Width / ScreenTools.DpiZoom,
-                Height / ScreenTools.DpiZoom
-            );
-        }
+        //public WpfRect ToWpfRect()
+        //{
+        //    return new WpfRect(
+        //        Left / ScreenTools.DpiZoom,
+        //        Top / ScreenTools.DpiZoom,
+        //        Width / ScreenTools.DpiZoom,
+        //        Height / ScreenTools.DpiZoom
+        //    );
+        //}
 
-        public static ScreenRect FromSystem(D.Rectangle rect)
-        {
-            return new ScreenRect(rect.X - ScreenTools.VirtualScreenSystemLeft, rect.Y - ScreenTools.VirtualScreenSystemTop, rect.Width, rect.Height);
-        }
+        //public static ScreenRect FromSystem(D.Rectangle rect)
+        //{
+        //    return new ScreenRect(rect.X - ScreenTools.VirtualScreenSystemLeft, rect.Y - ScreenTools.VirtualScreenSystemTop, rect.Width, rect.Height);
+        //}
 
-        public D.Rectangle ToSystem()
-        {
-            return new D.Rectangle(Left + ScreenTools.VirtualScreenSystemLeft, Top + ScreenTools.VirtualScreenSystemTop, Width, Height);
-        }
+        //public D.Rectangle ToSystem()
+        //{
+        //    return new D.Rectangle(Left + ScreenTools.VirtualScreenSystemLeft, Top + ScreenTools.VirtualScreenSystemTop, Width, Height);
+        //}
 
-        #endregion
+        //#endregion
 
         #region Utility
 

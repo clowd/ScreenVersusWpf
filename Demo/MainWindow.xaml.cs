@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Threading;
 using ScreenVersusWpf;
 using WpfCrutches;
@@ -14,10 +15,17 @@ namespace Demo
     {
         private DispatcherTimer _timer = new DispatcherTimer();
         private ScreenPoint _prevMousePos;
+        private bool _initialized;
 
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            _initialized = true;
             ScreenTools.ScreenSettingsChanged += delegate { Refresh(); };
             Refresh();
             _timer.Interval = TimeSpan.FromSeconds(1.0 / 60);
@@ -25,33 +33,59 @@ namespace Demo
             _timer.Start();
         }
 
+        protected override void OnDpiChanged(DpiScale oldDpi, DpiScale newDpi)
+        {
+            base.OnDpiChanged(oldDpi, newDpi);
+            Refresh();
+        }
+
+        protected override void OnLocationChanged(EventArgs e)
+        {
+            base.OnLocationChanged(e);
+            Refresh();
+        }
+
         private void Refresh()
         {
-            ScreenTools.InitializeDpi(ScreenTools.GetSystemDpi());
-            var wpfRectToScreen = new WpfRect(0, 0, 200, 200).ToScreenRect();
-            var screenRectToWpf = new ScreenRect(0, 0, 200, 200).ToWpfRect();
+            if (!_initialized)
+                return;
+
+            var dpi = DpiContext.FromVisual(this);
+            var wpfRectToScreen = dpi.VirtualRectToScreen(0, 0, 200, 200);
+            var screenRectToWpf = dpi.ScreenRectToVirtual(0, 0, 200, 200);
+
             ctVirtualScreenSize.Content = $"{ScreenTools.VirtualScreen.Bounds.Width}x{ScreenTools.VirtualScreen.Bounds.Height}";
-            ctVirtualScreenDpi.Content = ScreenTools.GetSystemDpi().ToString();
-            ctVirtualScreenZoom.Content = $"{ScreenTools.DpiZoom:0%}";
+            ctVirtualScreenDpi.Content = dpi.DpiX;
+            ctVirtualScreenZoom.Content = $"{dpi.DpiScaleX:0%}";
             ctWpfRectToScreen.Content = $"{wpfRectToScreen.Width}x{wpfRectToScreen.Height}";
             ctScreenRectToWpf.Content = $"{screenRectToWpf.Width}x{screenRectToWpf.Height}";
             ctBoxScreenSize.Width = screenRectToWpf.Width;
             ctBoxScreenSize.Height = screenRectToWpf.Height;
             ctPhysicalScreens.ItemsSource = ScreenTools.Screens.Select(s => new ScreenVM(s)).ToList();
+
+
+            WinAPI.GetWindowRect(new WindowInteropHelper(this).Handle, out var nrect);
+            var wscr = new ScreenRect(nrect.left, nrect.top, nrect.right - nrect.left, nrect.bottom - nrect.top);
+            var wvirt = dpi.ScreenRectToVirtual(wscr);
+
+            ctWindowNative.Content = $"Native({Left:0.##},{Top:0.##},{Width:0.##},{Height:0.##})";
+            ctWindowVirtual.Content = $"Virtual({wvirt.Left},{wvirt.Top},{wvirt.Width},{wvirt.Height})";
+            ctWindowScreen.Content = $"Screen({wscr.Left},{wscr.Top},{wscr.Width},{wscr.Height})";
+
         }
 
         private void timer_Tick(object sender, EventArgs e)
         {
-            var mousePosScreen = ScreenTools.GetMousePosition();
-            if (mousePosScreen == _prevMousePos)
-                return;
-            _prevMousePos = mousePosScreen;
-            var mousePosWpf = mousePosScreen.ToWpfPoint();
-            ctMouseScreenPoint.Content = $"ScreenPoint({mousePosScreen.X}, {mousePosScreen.Y})";
-            ctMouseWpfPoint.Content = $"WpfPoint({mousePosWpf.X}, {mousePosWpf.Y})";
-            var scrContaining = ScreenTools.GetScreenContaining(mousePosScreen);
-            foreach (ScreenVM vm in ctPhysicalScreens.ItemsSource)
-                vm.ContainsMouseVisibility.Value = vm.Scr == scrContaining ? Visibility.Visible : Visibility.Collapsed;
+            //var mousePosScreen = ScreenTools.GetMousePosition();
+            //if (mousePosScreen == _prevMousePos)
+            //    return;
+            //_prevMousePos = mousePosScreen;
+            //var mousePosWpf = mousePosScreen.ToWpfPoint();
+            //ctMouseScreenPoint.Content = $"ScreenPoint({mousePosScreen.X}, {mousePosScreen.Y})";
+            //ctMouseWpfPoint.Content = $"WpfPoint({mousePosWpf.X}, {mousePosWpf.Y})";
+            //var scrContaining = ScreenTools.GetScreenContaining(mousePosScreen);
+            //foreach (ScreenVM vm in ctPhysicalScreens.ItemsSource)
+            //    vm.ContainsMouseVisibility.Value = vm.Scr == scrContaining ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private class ScreenVM

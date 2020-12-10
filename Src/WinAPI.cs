@@ -6,7 +6,7 @@ using D = System.Drawing;
 
 namespace ScreenVersusWpf
 {
-    static class WinAPI
+    public static class WinAPI
     {
         #region Functions
 
@@ -31,6 +31,9 @@ namespace ScreenVersusWpf
 
         [DllImport("user32.dll")]
         public static extern IntPtr ReleaseDC(IntPtr hWnd, IntPtr hDC);
+
+        [DllImport("user32.dll")]
+        public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRectangle);
 
         #endregion Functions
 

@@ -37,7 +37,7 @@ namespace ScreenVersusWpf
 
         public override bool Equals(object obj)
         {
-            return obj == null ? false : !(obj is ScreenSize) ? false : (this == (ScreenSize) obj);
+            return obj == null ? false : !(obj is ScreenSize) ? false : (this == (ScreenSize)obj);
         }
 
         public override int GetHashCode()
@@ -47,22 +47,22 @@ namespace ScreenVersusWpf
 
         #endregion Equality
 
-        #region Conversions
+        //#region Conversions
 
-        public WpfSize ToWpfSize()
-        {
-            return new WpfSize(
-                Width / ScreenTools.DpiZoom,
-                Height / ScreenTools.DpiZoom
-            );
-        }
+        //public WpfSize ToWpfSize()
+        //{
+        //    return new WpfSize(
+        //        Width / ScreenTools.DpiZoom,
+        //        Height / ScreenTools.DpiZoom
+        //    );
+        //}
 
-        public ScreenPoint ToScreenPoint()
-        {
-            return new ScreenPoint(Width, Height);
-        }
+        //public ScreenPoint ToScreenPoint()
+        //{
+        //    return new ScreenPoint(Width, Height);
+        //}
 
-        #endregion Conversions
+        //#endregion Conversions
 
         #region Math
 
@@ -101,15 +101,15 @@ namespace ScreenVersusWpf
             return size + (-sub);
         }
 
-        public static ScreenSize operator +(ScreenSize size, ScreenPoint add)
-        {
-            return size + add.ToScreenSize();
-        }
+        //public static ScreenSize operator +(ScreenSize size, ScreenPoint add)
+        //{
+        //    return size + add.ToScreenSize();
+        //}
 
-        public static ScreenSize operator -(ScreenSize size, ScreenPoint sub)
-        {
-            return size + (-sub);
-        }
+        //public static ScreenSize operator -(ScreenSize size, ScreenPoint sub)
+        //{
+        //    return size + (-sub);
+        //}
 
         #endregion
     }

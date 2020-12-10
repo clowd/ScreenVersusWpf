@@ -8,10 +8,10 @@ namespace ScreenVersusWpf
 {
     public static class ScreenTools
     {
-        /// <summary>X coordinate of the virtual screen left edge in the system coordinate space.</summary>
-        internal static int VirtualScreenSystemLeft { get; private set; }
-        /// <summary>Y coordinate of the virtual screen top edge in the system coordinate space.</summary>
-        internal static int VirtualScreenSystemTop { get; private set; }
+        ///// <summary>X coordinate of the virtual screen left edge in the system coordinate space.</summary>
+        //internal static int VirtualScreenSystemLeft { get; private set; }
+        ///// <summary>Y coordinate of the virtual screen top edge in the system coordinate space.</summary>
+        //internal static int VirtualScreenSystemTop { get; private set; }
 
         /// <summary>Caches screen information. Reset to null when screen settings change, to be regenerated on first use.</summary>
         private static List<ScreenInfo> _screens;
@@ -29,8 +29,8 @@ namespace ScreenVersusWpf
             _screens = null;
 
             var vscr = SystemInformation.VirtualScreen;
-            VirtualScreenSystemLeft = vscr.Left;
-            VirtualScreenSystemTop = vscr.Top;
+            //VirtualScreenSystemLeft = vscr.Left;
+            //VirtualScreenSystemTop = vscr.Top;
             VirtualScreen = new ScreenInfo(vscr.Width, vscr.Height);
 
             if (ScreenSettingsChanged != null)
@@ -42,59 +42,30 @@ namespace ScreenVersusWpf
         ///     screen.</summary>
         public static event Action ScreenSettingsChanged;
 
-        private static double _dpiZoom = 0;
-        public static double DpiZoom
-        {
-            get
-            {
-                if (_dpiZoom == 0)
-                    throw new InvalidOperationException("You must call ScreenTools.InitializeDpi before calling this method.");
-                return _dpiZoom;
-            }
-        }
+        //public static int WpfToScreen(double wpfUnit)
+        //{
+        //    return (int)Math.Round(wpfUnit * DpiZoom);
+        //}
 
-        public static void InitializeDpi(int screenDpi)
-        {
-            _dpiZoom = screenDpi / 96.0;
-        }
+        //public static double ScreenToWpf(double screenPixels)
+        //{
+        //    return screenPixels / DpiZoom;
+        //}
 
-        /// <summary>
-        ///     Returns the system DPI value, which is the DPI setting at the time when the user signed in. This value does
-        ///     not change when the user modifies DPI and doesn't sign out (as supported on Win8.1+). It is also the same for
-        ///     all monitors, even if different monitors have different DPI selected.</summary>
-        public static int GetSystemDpi()
-        {
-            // sourced from caesay\Clowd
-            IntPtr dc = WinAPI.GetDC(IntPtr.Zero);
-            int dpi = WinAPI.GetDeviceCaps(dc, WinAPI.DEVICECAP.LOGPIXELSX);
-            WinAPI.ReleaseDC(IntPtr.Zero, dc);
-            return dpi;
-        }
+        //public static double WpfSnapToPixels(double wpfUnits)
+        //{
+        //    return Math.Round(wpfUnits * DpiZoom) / DpiZoom;
+        //}
 
-        public static int WpfToScreen(double wpfUnits)
-        {
-            return (int) Math.Round(wpfUnits * DpiZoom);
-        }
+        //public static double WpfSnapToPixelsCeil(double wpfUnits)
+        //{
+        //    return Math.Ceiling(wpfUnits * DpiZoom) / DpiZoom;
+        //}
 
-        public static double ScreenToWpf(double screenPixels)
-        {
-            return screenPixels / DpiZoom;
-        }
-
-        public static double WpfSnapToPixels(double wpfUnits)
-        {
-            return Math.Round(wpfUnits * DpiZoom) / DpiZoom;
-        }
-
-        public static double WpfSnapToPixelsCeil(double wpfUnits)
-        {
-            return Math.Ceiling(wpfUnits * DpiZoom) / DpiZoom;
-        }
-
-        public static double WpfSnapToPixelsFloor(double wpfUnits)
-        {
-            return Math.Floor(wpfUnits * DpiZoom) / DpiZoom;
-        }
+        //public static double WpfSnapToPixelsFloor(double wpfUnits)
+        //{
+        //    return Math.Floor(wpfUnits * DpiZoom) / DpiZoom;
+        //}
 
         /// <summary>
         ///     Gets a read-only collection of all physical screens and their bounds. The primary screen is always the first
@@ -127,10 +98,10 @@ namespace ScreenVersusWpf
         }
 
         /// <summary>Returns current mouse cursor position in the virtual screen coordinate space.</summary>
-        public static ScreenPoint GetMousePosition()
-        {
-            return ScreenPoint.FromSystem(Cursor.Position);
-        }
+        //public static ScreenPoint GetMousePosition()
+        //{
+        //    return ScreenPoint.FromSystem(Cursor.Position);
+        //}
 
         /// <summary>
         ///     Returns the physical screen containing the specified point, or null if the point is outside of every screen.</summary>

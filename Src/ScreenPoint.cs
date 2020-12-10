@@ -38,7 +38,7 @@ namespace ScreenVersusWpf
 
         public override bool Equals(object obj)
         {
-            return obj == null ? false : !(obj is ScreenPoint) ? false : (this == (ScreenPoint) obj);
+            return obj == null ? false : !(obj is ScreenPoint) ? false : (this == (ScreenPoint)obj);
         }
 
         public override int GetHashCode()
@@ -48,32 +48,32 @@ namespace ScreenVersusWpf
 
         #endregion Equality
 
-        #region Conversions
+        //#region Conversions
 
-        public WpfPoint ToWpfPoint()
-        {
-            return new WpfPoint(
-                X / ScreenTools.DpiZoom,
-                Y / ScreenTools.DpiZoom
-            );
-        }
+        //public WpfPoint ToWpfPoint()
+        //{
+        //    return new WpfPoint(
+        //        X / ScreenTools.DpiZoom,
+        //        Y / ScreenTools.DpiZoom
+        //    );
+        //}
 
-        public ScreenSize ToScreenSize()
-        {
-            return new ScreenSize(X, Y);
-        }
+        //public ScreenSize ToScreenSize()
+        //{
+        //    return new ScreenSize(X, Y);
+        //}
 
-        public static ScreenPoint FromSystem(D.Point point)
-        {
-            return new ScreenPoint(point.X - ScreenTools.VirtualScreenSystemLeft, point.Y - ScreenTools.VirtualScreenSystemTop);
-        }
+        //public static ScreenPoint FromSystem(D.Point point)
+        //{
+        //    return new ScreenPoint(point.X - ScreenTools.VirtualScreenSystemLeft, point.Y - ScreenTools.VirtualScreenSystemTop);
+        //}
 
-        public D.Point ToSystem()
-        {
-            return new D.Point(X + ScreenTools.VirtualScreenSystemLeft, Y + ScreenTools.VirtualScreenSystemTop);
-        }
+        //public D.Point ToSystem()
+        //{
+        //    return new D.Point(X + ScreenTools.VirtualScreenSystemLeft, Y + ScreenTools.VirtualScreenSystemTop);
+        //}
 
-        #endregion Conversions
+        //#endregion Conversions
 
         #region Math
 
@@ -112,15 +112,15 @@ namespace ScreenVersusWpf
             return point + (-sub);
         }
 
-        public static ScreenPoint operator +(ScreenPoint point, ScreenSize add)
-        {
-            return point + add.ToScreenPoint();
-        }
+        //public static ScreenPoint operator +(ScreenPoint point, ScreenSize add)
+        //{
+        //    return point + add.ToScreenPoint();
+        //}
 
-        public static ScreenPoint operator -(ScreenPoint point, ScreenSize sub)
-        {
-            return point + (-sub);
-        }
+        //public static ScreenPoint operator -(ScreenPoint point, ScreenSize sub)
+        //{
+        //    return point + (-sub);
+        //}
 
         #endregion Math
     }

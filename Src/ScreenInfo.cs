@@ -9,8 +9,10 @@ namespace ScreenVersusWpf
         {
             IsPrimary = screen.Primary;
             IsVirtual = false;
-            Bounds = ScreenRect.FromSystem(screen.Bounds);
-            WorkingArea = ScreenRect.FromSystem(screen.WorkingArea);
+            //Bounds = ScreenRect.FromSystem(screen.Bounds);
+            //WorkingArea = ScreenRect.FromSystem(screen.WorkingArea);
+            Bounds = new ScreenRect(screen.Bounds.X, screen.Bounds.Y, screen.Bounds.Width, screen.Bounds.Height);
+            WorkingArea = new ScreenRect(screen.WorkingArea.X, screen.WorkingArea.Y, screen.WorkingArea.Width, screen.WorkingArea.Height);
             DeviceName = screen.DeviceName;
         }
 
