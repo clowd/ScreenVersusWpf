@@ -14,12 +14,12 @@ namespace ScreenVersusWpf
         /// <summary>
         /// Gets the amount, in screen units, that a unit will be translated when converting to and from screen coordinates
         /// </summary>
-        public int VirtualWorldOffsetX { get; }
+        public int WorldOffsetX { get; }
 
         /// <summary>
         /// Gets the amount, in screen units, that a unit will be translated when converting to and from screen coordinates
         /// </summary>
-        public int VirtualWorldOffsetY { get; }
+        public int WorldOffsetY { get; }
 
         /// <summary>
         /// Gets the DPI on the X axis. When monitor zoom is 100%, this is 96. 
@@ -48,24 +48,36 @@ namespace ScreenVersusWpf
         /// </summary>
         public DpiContext(int dpiX, int dpiY, int offsetX, int offsetY)
         {
-            if (dpiX == 0 || dpiY == 0)
-                throw new ArgumentException("DPI of '0' is invalid.");
+            if (dpiX <= 0 || dpiY <= 0)
+                throw new ArgumentException("DPI must be greater than zero.");
+
+            if (dpiX != dpiY)
+                throw new ArgumentException("DPI X must equal DPI Y.");
+
+            // TODO THROW IF PROCESS IS NOT DPI AWARE
 
             DpiX = dpiX;
             DpiY = dpiY;
-            VirtualWorldOffsetX = offsetX;
-            VirtualWorldOffsetY = offsetY;
+            WorldOffsetX = offsetX;
+            WorldOffsetY = offsetY;
+        }
+
+        enum PossibleIdeaForOriginConfiguration
+        {
+            PrimaryScreenTopLeft,
+            VirtualScreenTopLeft,
+            WindowTopLeft,
         }
 
         /// <summary>
         /// Creates a DpiContext using the current transformation matrix of the specified visual. This can only be used if the CompositionTarget already exists, 
         /// so is likely to throw if used from within a window constructor before it is rendered.
         /// </summary>
-        public static DpiContext FromVisual(Visual visual)
+        public static DpiContext FromVisual(Visual visual, PossibleIdeaForOriginConfiguration origin = PossibleIdeaForOriginConfiguration.VirtualScreenTopLeft)
         {
             PresentationSource source = PresentationSource.FromVisual(visual);
-            var dx = (int)(96.0d * source.CompositionTarget.TransformToDevice.M11);
-            var dy = (int)(96.0d * source.CompositionTarget.TransformToDevice.M22);
+            var dx = (int)(Math.Round(96.0d * source.CompositionTarget.TransformToDevice.M11));
+            var dy = (int)(Math.Round(96.0d * source.CompositionTarget.TransformToDevice.M22));
             var vscr = System.Windows.Forms.SystemInformation.VirtualScreen;
             return new DpiContext(dx, dy, vscr.Left, vscr.Top);
         }
@@ -83,69 +95,59 @@ namespace ScreenVersusWpf
             return new DpiContext(dx, dy, vscr.Left, vscr.Top);
         }
 
-        private int v2sX(double virtualUnit) => ((int)Math.Round(virtualUnit * DpiScaleX)) + VirtualWorldOffsetX;
-        private int v2sY(double virtualUnit) => ((int)Math.Round(virtualUnit * DpiScaleY)) + VirtualWorldOffsetY;
-        private double s2vX(int screenUnit) => (screenUnit - VirtualWorldOffsetX) / DpiScaleX;
-        private double s2vY(int screenUnit) => (screenUnit - VirtualWorldOffsetY) / DpiScaleY;
+        private Func<double, double> GetRoundingFn(WorldRoundingMode roundingMode)
+        {
+            switch (roundingMode)
+            {
+                case WorldRoundingMode.Midpoint: return Math.Round;
+                case WorldRoundingMode.Floor: return Math.Floor;
+                case WorldRoundingMode.Ceiling: return Math.Ceiling;
+                default: throw new ArgumentOutOfRangeException(nameof(roundingMode));
+            }
+        }
 
-        /// <summary>
-        /// Converts a fractional unit in virtual space to it's corresponding horizontal unit in standard screen space
-        /// </summary>
-        public int VirtualUnitToScreenX(double virtualUnit) => (int)Math.Round(virtualUnit * DpiScaleX);
+        public int ToScreenWH(double worldWH, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => (int)GetRoundingFn(roundingMode)(worldWH * DpiScaleX);
 
-        /// <summary>
-        /// Converts a fractional unit in virtual space to it's corresponding vertical unit in standard screen space
-        /// </summary>
-        public int VirtualUnitToScreenY(double virtualUnit) => (int)Math.Round(virtualUnit * DpiScaleY);
+        public int ToScreenX(double worldX, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToScreenWH(worldX, roundingMode) + WorldOffsetX;
 
-        /// <summary>
-        /// Converts a screen unit to it's corresponding horizontal unit in fractional virtual space
-        /// </summary>
-        public double ScreenToVirtualUnitX(int screenUnit) => screenUnit / DpiScaleX;
+        public int ToScreenY(double worldY, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToScreenWH(worldY, roundingMode) + WorldOffsetY;
 
-        /// <summary>
-        /// Converts a screen unit to it's corresponding vertical unit in fractional virtual space
-        /// </summary>
-        public double ScreenToVirtualUnitY(int screenUnit) => screenUnit / DpiScaleY;
+        public ScreenPoint ToScreenPoint(double worldX, double worldY, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => new ScreenPoint(ToScreenX(worldX, roundingMode), ToScreenY(worldY, roundingMode));
 
-        public ScreenPoint VirtualPointToScreen(double x, double y) => new ScreenPoint(v2sX(x), v2sY(y));
+        public ScreenPoint ToScreenPoint(Point worldPoint, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToScreenPoint(worldPoint.X, worldPoint.Y, roundingMode);
 
-        public ScreenPoint VirtualPointToScreen(Point virtualPoint) => VirtualPointToScreen(virtualPoint.X, virtualPoint.Y);
+        public ScreenSize ToScreenSize(double worldW, double worldH, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => new ScreenSize(ToScreenWH(worldW, roundingMode), ToScreenWH(worldH, roundingMode));
 
-        public ScreenSize VirtualSizeToScreen(double w, double h) => new ScreenSize(VirtualUnitToScreenX(w), VirtualUnitToScreenY(h));
+        public ScreenSize ToScreenSize(Size worldSize, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToScreenSize(worldSize.Width, worldSize.Height, roundingMode);
 
-        public ScreenSize VirtualSizeToScreen(Size virtualSize) => VirtualSizeToScreen(virtualSize.Width, virtualSize.Height);
+        public ScreenRect ToScreenRect(double worldX, double worldY, double worldW, double worldH, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => new ScreenRect(ToScreenX(worldX, roundingMode), ToScreenY(worldY, roundingMode), ToScreenWH(worldW, roundingMode), ToScreenWH(worldH, roundingMode));
 
-        public ScreenRect VirtualRectToScreen(double x, double y, double w, double h) => new ScreenRect(v2sX(x), v2sY(y), VirtualUnitToScreenX(w), VirtualUnitToScreenY(h));
+        public ScreenRect ToScreenRect(Rect worldRect, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToScreenRect(worldRect.X, worldRect.Y, worldRect.Width, worldRect.Height, roundingMode);
 
-        public ScreenRect VirtualRectToScreen(Rect virtualRect) => VirtualRectToScreen(virtualRect.X, virtualRect.Y, virtualRect.Width, virtualRect.Height);
+        public double ToWorldWH(int screenWH) => screenWH / DpiScaleX;
 
-        public Point ScreenPointToVirtual(int x, int y) => new Point(s2vX(x), s2vY(y));
+        public double ToWorldX(int screenX) => ToWorldWH(screenX - WorldOffsetX);
 
-        public Point ScreenPointToVirtual(ScreenPoint screenPoint) => ScreenPointToVirtual(screenPoint.X, screenPoint.Y);
+        public double ToWorldY(int screenY) => ToWorldWH(screenY - WorldOffsetY);
 
-        public Size ScreenSizeToVirtual(int w, int h) => new Size(ScreenToVirtualUnitX(w), ScreenToVirtualUnitY(h));
+        public Point ToWorldPoint(int screenX, int screenY) => new Point(ToWorldX(screenX), ToWorldY(screenY));
 
-        public Size ScreenSizeToVirtual(ScreenSize screenSize) => ScreenSizeToVirtual(screenSize.Width, screenSize.Height);
+        public Point ToWorldPoint(ScreenPoint screenPoint) => ToWorldPoint(screenPoint.X, screenPoint.Y);
 
-        public Rect ScreenRectToVirtual(int x, int y, int w, int h) => new Rect(s2vX(x), s2vY(y), ScreenToVirtualUnitX(w), ScreenToVirtualUnitY(h));
+        public Size ToWorldSize(int screenW, int screenH) => new Size(ToWorldWH(screenW), ToWorldWH(screenH));
 
-        public Rect ScreenRectToVirtual(ScreenRect screenRect) => ScreenRectToVirtual(screenRect.Left, screenRect.Top, screenRect.Width, screenRect.Height);
+        public Size ToWorldSize(ScreenSize screenSize) => ToWorldSize(screenSize.Width, screenSize.Height);
 
+        public Rect ToWorldRect(int screenX, int screenY, int screenW, int screenH) => new Rect(ToWorldX(screenX), ToWorldY(screenY), ToWorldWH(screenW), ToWorldWH(screenH));
 
-        //public double WpfSnapToPixels(double wpfUnits)
-        //{
-        //    return Math.Round(wpfUnits * DpiZoom) / DpiZoom;
-        //}
+        public Rect ToWorldRect(ScreenRect screenRect) => ToWorldRect(screenRect.Left, screenRect.Top, screenRect.Width, screenRect.Height);
 
-        //public double WpfSnapToPixelsCeil(double wpfUnits)
-        //{
-        //    return Math.Ceiling(wpfUnits * DpiZoom) / DpiZoom;
-        //}
+        public double Round(double worldWH, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToWorldWH(ToScreenWH(worldWH, roundingMode));
 
-        //public double WpfSnapToPixelsFloor(double wpfUnits)
-        //{
-        //    return Math.Floor(wpfUnits * DpiZoom) / DpiZoom;
-        //}
+        public Point Round(Point worldPoint, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToWorldPoint(ToScreenPoint(worldPoint, roundingMode));
+
+        public Rect Round(Rect worldRect, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToWorldRect(ToScreenRect(worldRect, roundingMode));
+
+        public Size Round(Size worldSize, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToWorldSize(ToScreenSize(worldSize, roundingMode));
     }
 }

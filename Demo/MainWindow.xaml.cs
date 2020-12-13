@@ -51,8 +51,8 @@ namespace Demo
                 return;
 
             var dpi = DpiContext.FromVisual(this);
-            var wpfRectToScreen = dpi.VirtualRectToScreen(0, 0, 200, 200);
-            var screenRectToWpf = dpi.ScreenRectToVirtual(0, 0, 200, 200);
+            var wpfRectToScreen = dpi.ToScreenRect(0, 0, 200, 200);
+            var screenRectToWpf = dpi.ToWorldRect(0, 0, 200, 200);
 
             ctVirtualScreenSize.Content = $"{ScreenTools.VirtualScreen.Bounds.Width}x{ScreenTools.VirtualScreen.Bounds.Height}";
             ctVirtualScreenDpi.Content = dpi.DpiX;
@@ -66,7 +66,7 @@ namespace Demo
 
             WinAPI.GetWindowRect(new WindowInteropHelper(this).Handle, out var nrect);
             var wscr = new ScreenRect(nrect.left, nrect.top, nrect.right - nrect.left, nrect.bottom - nrect.top);
-            var wvirt = dpi.ScreenRectToVirtual(wscr);
+            var wvirt = dpi.ToWorldRect(wscr);
 
             ctWindowNative.Content = $"Native({Left:0.##},{Top:0.##},{Width:0.##},{Height:0.##})";
             ctWindowVirtual.Content = $"Virtual({wvirt.Left},{wvirt.Top},{wvirt.Width},{wvirt.Height})";
