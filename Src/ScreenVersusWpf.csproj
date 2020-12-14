@@ -43,8 +43,9 @@
     <Compile Include="ScreenPoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScreenRect.cs" />
-    <Compile Include="ScreenTools.cs" />
-    <Compile Include="WinAPI.cs" />
+    <Compile Include="Sys.cs" />
+    <Compile Include="WindowInfo.cs" />
+    <Compile Include="WorldOrigin.cs" />
     <Compile Include="WorldRoundingMode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

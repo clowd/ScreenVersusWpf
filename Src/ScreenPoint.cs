@@ -1,5 +1,7 @@
-﻿using System;
+﻿#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+using System;
 using D = System.Drawing;
+using W = System.Windows;
 
 namespace ScreenVersusWpf
 {
@@ -14,114 +16,33 @@ namespace ScreenVersusWpf
             Y = y;
         }
 
-        public override string ToString()
-        {
-            return $"X={X}, Y={Y}";
-        }
-
-        #region Equality
-
-        public static bool operator ==(ScreenPoint point1, ScreenPoint point2)
-        {
-            return point1.X == point2.X && point1.Y == point2.Y;
-        }
-
-        public static bool operator !=(ScreenPoint point1, ScreenPoint point2)
-        {
-            return !(point1 == point2);
-        }
-
-        public bool Equals(ScreenPoint other)
-        {
-            return this == other;
-        }
-
+        public override string ToString() => $"X={X}, Y={Y}";
+        public static bool operator ==(ScreenPoint point1, ScreenPoint point2) => point1.X == point2.X && point1.Y == point2.Y;
+        public static bool operator !=(ScreenPoint point1, ScreenPoint point2) => !(point1 == point2);
+        public bool Equals(ScreenPoint other) => this == other;
         public override bool Equals(object obj)
         {
-            return obj == null ? false : !(obj is ScreenPoint) ? false : (this == (ScreenPoint)obj);
+            if (obj is ScreenPoint pt)
+                return Equals(pt);
+            return false;
         }
 
-        public override int GetHashCode()
-        {
-            return unchecked(X + 9949 * Y);
-        }
+        public override int GetHashCode() => unchecked(X + 9949 * Y);
 
-        #endregion Equality
+        public static explicit operator D.Point(ScreenPoint pt) => new D.Point(pt.X, pt.Y);
+        public static explicit operator ScreenPoint(D.Point pt) => new ScreenPoint(pt.X, pt.Y);
 
-        //#region Conversions
+        public W.Point ToVisual(W.Media.Visual visual) => DpiContext.FromVisual(visual).ToWorldPoint(this);
+        public W.Point ToScreen(ScreenInfo screen) => DpiContext.FromScreen(screen).ToWorldPoint(this);
+        public W.Point ToScreen(IntPtr hMonitor) => DpiContext.FromScreen(hMonitor).ToWorldPoint(this);
+        public W.Point ToPrimaryScreen() => DpiContext.FromPrimaryScreen().ToWorldPoint(this);
 
-        //public WpfPoint ToWpfPoint()
-        //{
-        //    return new WpfPoint(
-        //        X / ScreenTools.DpiZoom,
-        //        Y / ScreenTools.DpiZoom
-        //    );
-        //}
-
-        //public ScreenSize ToScreenSize()
-        //{
-        //    return new ScreenSize(X, Y);
-        //}
-
-        //public static ScreenPoint FromSystem(D.Point point)
-        //{
-        //    return new ScreenPoint(point.X - ScreenTools.VirtualScreenSystemLeft, point.Y - ScreenTools.VirtualScreenSystemTop);
-        //}
-
-        //public D.Point ToSystem()
-        //{
-        //    return new D.Point(X + ScreenTools.VirtualScreenSystemLeft, Y + ScreenTools.VirtualScreenSystemTop);
-        //}
-
-        //#endregion Conversions
-
-        #region Math
-
-        public static ScreenPoint operator -(ScreenPoint point)
-        {
-            return new ScreenPoint(-point.X, -point.Y);
-        }
-
-        public static ScreenPoint operator +(ScreenPoint point, int add)
-        {
-            return new ScreenPoint(point.X + add, point.Y + add);
-        }
-
-        public static ScreenPoint operator -(ScreenPoint point, int sub)
-        {
-            return point + (-sub);
-        }
-
-        public static ScreenPoint operator *(ScreenPoint point, int mul)
-        {
-            return new ScreenPoint(point.X * mul, point.Y * mul);
-        }
-
-        public static ScreenPoint operator /(ScreenPoint point, int div)
-        {
-            return new ScreenPoint(point.X / div, point.Y / div);
-        }
-
-        public static ScreenPoint operator +(ScreenPoint point, ScreenPoint add)
-        {
-            return new ScreenPoint(point.X + add.X, point.Y + add.Y);
-        }
-
-        public static ScreenPoint operator -(ScreenPoint point, ScreenPoint sub)
-        {
-            return point + (-sub);
-        }
-
-        //public static ScreenPoint operator +(ScreenPoint point, ScreenSize add)
-        //{
-        //    return point + add.ToScreenPoint();
-        //}
-
-        //public static ScreenPoint operator -(ScreenPoint point, ScreenSize sub)
-        //{
-        //    return point + (-sub);
-        //}
-
-        #endregion Math
+        public static ScreenPoint operator -(ScreenPoint point) => new ScreenPoint(-point.X, -point.Y);
+        public static ScreenPoint operator +(ScreenPoint point, int add) => new ScreenPoint(point.X + add, point.Y + add);
+        public static ScreenPoint operator -(ScreenPoint point, int sub) => point + (-sub);
+        public static ScreenPoint operator *(ScreenPoint point, int mul) => new ScreenPoint(point.X * mul, point.Y * mul);
+        public static ScreenPoint operator /(ScreenPoint point, int div) => new ScreenPoint(point.X / div, point.Y / div);
+        public static ScreenPoint operator +(ScreenPoint point, ScreenPoint add) => new ScreenPoint(point.X + add.X, point.Y + add.Y);
+        public static ScreenPoint operator -(ScreenPoint point, ScreenPoint sub) => point + (-sub);
     }
 }

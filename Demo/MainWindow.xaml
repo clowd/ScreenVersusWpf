@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="ScreenVersusWpf demo"
     Width="800"
-    Height="600"
+    Height="800"
     TextOptions.TextFormattingMode="Display"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
@@ -50,7 +50,7 @@
                         <Label
                             Margin="10,0,0,0"
                             FontWeight="Bold"
-                            Visibility="{Binding ContainsMouseVisibility.Value}">
+                            Visibility="{Binding ContainsMouseVisibility}">
                             (contains mouse)
                         </Label>
                     </StackPanel>
@@ -59,7 +59,8 @@
         </ItemsControl>
         <StackPanel
             HorizontalAlignment="Center"
-            VerticalAlignment="Center"
+            DockPanel.Dock="Top"
+            VerticalAlignment="Top"
             Orientation="Horizontal"
             SnapsToDevicePixels="True">
             <Border
@@ -91,5 +92,8 @@
                 </StackPanel>
             </Border>
         </StackPanel>
+        <Viewbox x:Name="scrZoom" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Canvas x:Name="scrCanvas"></Canvas>
+        </Viewbox>
     </DockPanel>
 </Window>

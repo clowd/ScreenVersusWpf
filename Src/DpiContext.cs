@@ -11,6 +11,10 @@ namespace ScreenVersusWpf
     /// </summary>
     public struct DpiContext
     {
+        public static WorldRoundingMode DefaultRoundingMode { get; set; } = WorldRoundingMode.Midpoint;
+
+        public static WorldOrigin DefaultWorldOrigin { get; set; } = WorldOrigin.VirtualTopLeft;
+
         /// <summary>
         /// Gets the amount, in screen units, that a unit will be translated when converting to and from screen coordinates
         /// </summary>
@@ -52,9 +56,7 @@ namespace ScreenVersusWpf
                 throw new ArgumentException("DPI must be greater than zero.");
 
             if (dpiX != dpiY)
-                throw new ArgumentException("DPI X must equal DPI Y.");
-
-            // TODO THROW IF PROCESS IS NOT DPI AWARE
+                throw new ArgumentException("DPI X must be equal to DPI Y.");
 
             DpiX = dpiX;
             DpiY = dpiY;
@@ -62,24 +64,19 @@ namespace ScreenVersusWpf
             WorldOffsetY = offsetY;
         }
 
-        enum PossibleIdeaForOriginConfiguration
-        {
-            PrimaryScreenTopLeft,
-            VirtualScreenTopLeft,
-            WindowTopLeft,
-        }
-
         /// <summary>
         /// Creates a DpiContext using the current transformation matrix of the specified visual. This can only be used if the CompositionTarget already exists, 
         /// so is likely to throw if used from within a window constructor before it is rendered.
         /// </summary>
-        public static DpiContext FromVisual(Visual visual, PossibleIdeaForOriginConfiguration origin = PossibleIdeaForOriginConfiguration.VirtualScreenTopLeft)
+        public static DpiContext FromVisual(Visual visual)
         {
+            Sys.EnsureProcessDPIAwareness();
             PresentationSource source = PresentationSource.FromVisual(visual);
             var dx = (int)(Math.Round(96.0d * source.CompositionTarget.TransformToDevice.M11));
             var dy = (int)(Math.Round(96.0d * source.CompositionTarget.TransformToDevice.M22));
-            var vscr = System.Windows.Forms.SystemInformation.VirtualScreen;
-            return new DpiContext(dx, dy, vscr.Left, vscr.Top);
+
+            var ofs = GetWorldOrigin(null);
+            return new DpiContext(dx, dy, ofs.X, ofs.Y);
         }
 
         /// <summary>
@@ -87,16 +84,52 @@ namespace ScreenVersusWpf
         /// </summary>
         public static DpiContext FromPrimaryScreen()
         {
-            IntPtr dc = WinAPI.GetDC(IntPtr.Zero);
-            int dx = WinAPI.GetDeviceCaps(dc, WinAPI.DEVICECAP.LOGPIXELSX);
-            int dy = WinAPI.GetDeviceCaps(dc, WinAPI.DEVICECAP.LOGPIXELSY);
-            WinAPI.ReleaseDC(IntPtr.Zero, dc);
-            var vscr = System.Windows.Forms.SystemInformation.VirtualScreen;
-            return new DpiContext(dx, dy, vscr.Left, vscr.Top);
+            Sys.EnsureProcessDPIAwareness();
+            IntPtr dc = Sys.GetDC(IntPtr.Zero);
+            int dx = Sys.GetDeviceCaps(dc, Sys.DEVICECAP.LOGPIXELSX);
+            int dy = Sys.GetDeviceCaps(dc, Sys.DEVICECAP.LOGPIXELSY);
+            Sys.ReleaseDC(IntPtr.Zero, dc);
+
+            var ofs = GetWorldOrigin(null);
+            return new DpiContext(dx, dy, ofs.X, ofs.Y);
         }
 
-        private Func<double, double> GetRoundingFn(WorldRoundingMode roundingMode)
+        /// <summary>
+        /// Creates a DpiContext using the user-configured DPI of the specified screen
+        /// </summary>
+        public static DpiContext FromScreen(IntPtr hMonitor)
         {
+            Sys.EnsureProcessDPIAwareness();
+            try
+            {
+                uint dx = 0, dy = 0;
+                if (Sys.GetDpiForMonitor(hMonitor, Sys.MONITOR_DPI_TYPE.MDT_EFFECTIVE_DPI, ref dx, ref dy))
+                {
+                    var ofs = GetWorldOrigin(null);
+                    return new DpiContext((int)dx, (int)dy, ofs.X, ofs.Y);
+                }
+                else
+                {
+                    throw new InvalidOperationException("An unknown error occurred while trying to retrieve the DPI for the specified screen. Verify the handle is valid.");
+                }
+            }
+            catch (DllNotFoundException)
+            {
+                // shcore.dll does not exist, fall back to system DPI
+                return DpiContext.FromPrimaryScreen();
+            }
+        }
+
+        /// <summary>
+        /// Creates a DpiContext using the user-configured DPI of the specified screen
+        /// </summary>
+        public static DpiContext FromScreen(ScreenInfo screen) => FromScreen(screen.Handle);
+
+        private static Func<double, double> GetRoundingFn(WorldRoundingMode? roundingMode)
+        {
+            if (!roundingMode.HasValue)
+                roundingMode = DefaultRoundingMode;
+
             switch (roundingMode)
             {
                 case WorldRoundingMode.Midpoint: return Math.Round;
@@ -106,23 +139,38 @@ namespace ScreenVersusWpf
             }
         }
 
-        public int ToScreenWH(double worldWH, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => (int)GetRoundingFn(roundingMode)(worldWH * DpiScaleX);
+        private static ScreenPoint GetWorldOrigin(WorldOrigin? origin)
+        {
+            if (!origin.HasValue)
+                origin = DefaultWorldOrigin;
 
-        public int ToScreenX(double worldX, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToScreenWH(worldX, roundingMode) + WorldOffsetX;
+            switch (origin)
+            {
+                case WorldOrigin.VirtualTopLeft:
+                    var vscr = System.Windows.Forms.SystemInformation.VirtualScreen;
+                    return new ScreenPoint(vscr.X, vscr.Y);
+                case WorldOrigin.PrimaryTopLeft: return new ScreenPoint();
+                default: throw new ArgumentOutOfRangeException(nameof(origin));
+            }
+        }
 
-        public int ToScreenY(double worldY, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToScreenWH(worldY, roundingMode) + WorldOffsetY;
+        public int ToScreenWH(double worldWH, WorldRoundingMode? roundingMode = null) => (int)GetRoundingFn(roundingMode)(worldWH * DpiScaleX);
 
-        public ScreenPoint ToScreenPoint(double worldX, double worldY, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => new ScreenPoint(ToScreenX(worldX, roundingMode), ToScreenY(worldY, roundingMode));
+        public int ToScreenX(double worldX, WorldRoundingMode? roundingMode = null) => ToScreenWH(worldX, roundingMode) + WorldOffsetX;
 
-        public ScreenPoint ToScreenPoint(Point worldPoint, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToScreenPoint(worldPoint.X, worldPoint.Y, roundingMode);
+        public int ToScreenY(double worldY, WorldRoundingMode? roundingMode = null) => ToScreenWH(worldY, roundingMode) + WorldOffsetY;
 
-        public ScreenSize ToScreenSize(double worldW, double worldH, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => new ScreenSize(ToScreenWH(worldW, roundingMode), ToScreenWH(worldH, roundingMode));
+        public ScreenPoint ToScreenPoint(double worldX, double worldY, WorldRoundingMode? roundingMode = null) => new ScreenPoint(ToScreenX(worldX, roundingMode), ToScreenY(worldY, roundingMode));
 
-        public ScreenSize ToScreenSize(Size worldSize, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToScreenSize(worldSize.Width, worldSize.Height, roundingMode);
+        public ScreenPoint ToScreenPoint(Point worldPoint, WorldRoundingMode? roundingMode = null) => ToScreenPoint(worldPoint.X, worldPoint.Y, roundingMode);
 
-        public ScreenRect ToScreenRect(double worldX, double worldY, double worldW, double worldH, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => new ScreenRect(ToScreenX(worldX, roundingMode), ToScreenY(worldY, roundingMode), ToScreenWH(worldW, roundingMode), ToScreenWH(worldH, roundingMode));
+        public ScreenSize ToScreenSize(double worldW, double worldH, WorldRoundingMode? roundingMode = null) => new ScreenSize(ToScreenWH(worldW, roundingMode), ToScreenWH(worldH, roundingMode));
 
-        public ScreenRect ToScreenRect(Rect worldRect, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToScreenRect(worldRect.X, worldRect.Y, worldRect.Width, worldRect.Height, roundingMode);
+        public ScreenSize ToScreenSize(Size worldSize, WorldRoundingMode? roundingMode = null) => ToScreenSize(worldSize.Width, worldSize.Height, roundingMode);
+
+        public ScreenRect ToScreenRect(double worldX, double worldY, double worldW, double worldH, WorldRoundingMode? roundingMode = null) => new ScreenRect(ToScreenX(worldX, roundingMode), ToScreenY(worldY, roundingMode), ToScreenWH(worldW, roundingMode), ToScreenWH(worldH, roundingMode));
+
+        public ScreenRect ToScreenRect(Rect worldRect, WorldRoundingMode? roundingMode = null) => ToScreenRect(worldRect.X, worldRect.Y, worldRect.Width, worldRect.Height, roundingMode);
 
         public double ToWorldWH(int screenWH) => screenWH / DpiScaleX;
 
@@ -142,12 +190,12 @@ namespace ScreenVersusWpf
 
         public Rect ToWorldRect(ScreenRect screenRect) => ToWorldRect(screenRect.Left, screenRect.Top, screenRect.Width, screenRect.Height);
 
-        public double Round(double worldWH, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToWorldWH(ToScreenWH(worldWH, roundingMode));
+        public double Round(double worldWH, WorldRoundingMode? roundingMode = null) => ToWorldWH(ToScreenWH(worldWH, roundingMode));
 
-        public Point Round(Point worldPoint, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToWorldPoint(ToScreenPoint(worldPoint, roundingMode));
+        public Point Round(Point worldPoint, WorldRoundingMode? roundingMode = null) => ToWorldPoint(ToScreenPoint(worldPoint, roundingMode));
 
-        public Rect Round(Rect worldRect, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToWorldRect(ToScreenRect(worldRect, roundingMode));
+        public Rect Round(Rect worldRect, WorldRoundingMode? roundingMode = null) => ToWorldRect(ToScreenRect(worldRect, roundingMode));
 
-        public Size Round(Size worldSize, WorldRoundingMode roundingMode = WorldRoundingMode.Midpoint) => ToWorldSize(ToScreenSize(worldSize, roundingMode));
+        public Size Round(Size worldSize, WorldRoundingMode? roundingMode = null) => ToWorldSize(ToScreenSize(worldSize, roundingMode));
     }
 }
