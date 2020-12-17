@@ -59,18 +59,18 @@ namespace Demo
             if (!_initialized)
                 return;
 
-            var dpi = DpiContext.FromVisual(this);
+            var dpi = DpiContext.FromVisual(this, WorldOrigin.VirtualTopLeft);
             var wpfRectToScreen = dpi.ToScreenRect(0, 0, 200, 200);
             var screenRectToWpf = dpi.ToWorldRect(0, 0, 200, 200);
 
-            ctVirtualScreenSize.Content = $"{ScreenInfo.VirtualScreen.Bounds.Width}x{ScreenInfo.VirtualScreen.Bounds.Height}";
+            ctVirtualScreenSize.Content = $"{DisplayInfo.VirtualScreen.Bounds.Width}x{DisplayInfo.VirtualScreen.Bounds.Height}";
             ctVirtualScreenDpi.Content = dpi.DpiX;
             ctVirtualScreenZoom.Content = $"{dpi.DpiScaleX:0%}";
             ctWpfRectToScreen.Content = $"{wpfRectToScreen.Width}x{wpfRectToScreen.Height}";
             ctScreenRectToWpf.Content = $"{screenRectToWpf.Width}x{screenRectToWpf.Height}";
             ctBoxScreenSize.Width = screenRectToWpf.Width;
             ctBoxScreenSize.Height = screenRectToWpf.Height;
-            ctPhysicalScreens.ItemsSource = ScreenInfo.AllScreens.Select(s => new ScreenVM(s)).ToList();
+            ctPhysicalScreens.ItemsSource = DisplayInfo.AllScreens.Select(s => new ScreenVM(s)).ToList();
 
             var wi = WindowInfo.FromWindow(this);
             var wscr = wi.Bounds;
@@ -81,8 +81,7 @@ namespace Demo
             ctWindowScreen.Content = $"Screen({wscr.Left},{wscr.Top},{wscr.Width},{wscr.Height})";
 
             // screens illustration
-
-            var virtRect = ScreenInfo.VirtualScreen.Bounds.ToVisual(this);
+            var virtRect = dpi.ToWorldRect(DisplayInfo.VirtualScreen.Bounds); //.ToVisual(this);
             scrCanvas.Children.Clear();
             scrCanvas.Width = virtRect.Width;
             scrCanvas.Height = virtRect.Height;
@@ -93,12 +92,12 @@ namespace Demo
             var zoom = virtRect.Width / scrZoom.ActualWidth;
             var thickness = dpi.Round(1) * zoom;
 
-            foreach (var scr in ScreenInfo.AllScreens)
+            foreach (var scr in DisplayInfo.AllScreens)
             {
                 var b = new Border();
                 b.BorderThickness = new Thickness(thickness);
                 b.BorderBrush = Brushes.Turquoise;
-                var wr = scr.Bounds.ToVisual(this);
+                var wr = dpi.ToWorldRect(scr.Bounds); //.ToVisual(this);
                 Canvas.SetLeft(b, wr.Left);
                 Canvas.SetTop(b, wr.Top);
                 b.Width = wr.Width;
@@ -106,10 +105,11 @@ namespace Demo
                 scrCanvas.Children.Add(b);
 
                 var t = new TextBlock();
-                t.Text = scr.Bounds.ToString() + Environment.NewLine + $"{scr.DpiContext.DpiX} DPI";
+                var screenDpi = DpiContext.FromDisplay(scr, WorldOrigin.VirtualTopLeft);
+                t.Text = scr.Bounds.ToString() + Environment.NewLine + wr.ToString() + Environment.NewLine + screenDpi.ToString();
                 t.FontSize = 11 * zoom;
-                Canvas.SetLeft(t, wr.Left);
-                Canvas.SetTop(t, wr.Top);
+                Canvas.SetLeft(t, wr.Left + 5 * zoom);
+                Canvas.SetTop(t, wr.Top + 5 * zoom);
                 scrCanvas.Children.Add(t);
             }
 
@@ -117,6 +117,7 @@ namespace Demo
                 var b = new Border();
                 b.BorderThickness = new Thickness(thickness);
                 b.BorderBrush = Brushes.Red;
+                b.Background = new SolidColorBrush(Color.FromArgb(200, 255, 255, 255));
                 var wr = wvirt;
                 Canvas.SetLeft(b, wr.Left);
                 Canvas.SetTop(b, wr.Top);
@@ -125,10 +126,11 @@ namespace Demo
                 scrCanvas.Children.Add(b);
 
                 var t = new TextBlock();
-                t.Text = wvirt.ToString() + Environment.NewLine + $"{ScreenInfo.FromWindow(this).DpiContext.DpiX} DPI";
+                var screenDpi = DpiContext.FromDisplay(DisplayInfo.FromWindow(this), WorldOrigin.VirtualTopLeft);
+                t.Text = wvirt.ToString() + Environment.NewLine + screenDpi.ToString();
                 t.FontSize = 11 * zoom;
-                Canvas.SetLeft(t, wr.Left);
-                Canvas.SetTop(t, wr.Top);
+                Canvas.SetLeft(t, wr.Left + 5 * zoom);
+                Canvas.SetTop(t, wr.Top + 5 * zoom);
                 scrCanvas.Children.Add(t);
             }
 
@@ -162,8 +164,8 @@ namespace Demo
 
         private class ScreenVM : INotifyPropertyChanged
         {
-            public ScreenInfo Scr { get; private set; }
-            public ScreenVM(ScreenInfo scr) { Scr = scr; }
+            public DisplayInfo Scr { get; private set; }
+            public ScreenVM(DisplayInfo scr) { Scr = scr; }
             public event PropertyChangedEventHandler PropertyChanged;
             public override string ToString() => Scr.ToString();
             public Visibility ContainsMouseVisibility { get; set; } = Visibility.Hidden;

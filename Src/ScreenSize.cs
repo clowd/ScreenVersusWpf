@@ -5,7 +5,7 @@ using W = System.Windows;
 
 namespace ScreenVersusWpf
 {
-    public struct ScreenSize : IEquatable<ScreenSize>
+    public struct ScreenSize : IScreenStruct<ScreenSize, W.Size>
     {
         public int Width { get; set; }
         public int Height { get; set; }
@@ -32,10 +32,10 @@ namespace ScreenVersusWpf
         public static explicit operator D.Size(ScreenSize sz) => new D.Size(sz.Width, sz.Height);
         public static explicit operator ScreenSize(D.Size sz) => new ScreenSize(sz.Width, sz.Height);
 
-        public W.Size ToVisual(W.Media.Visual visual) => DpiContext.FromVisual(visual).ToWorldSize(this);
-        public W.Size ToScreen(ScreenInfo screen) => DpiContext.FromScreen(screen).ToWorldSize(this);
-        public W.Size ToScreen(IntPtr hMonitor) => DpiContext.FromScreen(hMonitor).ToWorldSize(this);
-        public W.Size ToPrimaryScreen() => DpiContext.FromPrimaryScreen().ToWorldSize(this);
+        //public W.Size ToVisual(W.Media.Visual visual) => DpiContext.FromVisual(visual).ToWorldSize(this);
+        //public W.Size ToDisplay(DisplayInfo display) => DpiContext.FromDisplay(display).ToWorldSize(this);
+        //public W.Size ToDisplay(IntPtr hMonitor) => DpiContext.FromDisplay(hMonitor).ToWorldSize(this);
+        //public W.Size ToPrimaryDisplay() => DpiContext.FromPrimaryDisplay().ToWorldSize(this);
 
         public static ScreenSize operator -(ScreenSize size) => new ScreenSize(-size.Width, -size.Height);
         public static ScreenSize operator +(ScreenSize size, int add) => new ScreenSize(size.Width + add, size.Height + add);

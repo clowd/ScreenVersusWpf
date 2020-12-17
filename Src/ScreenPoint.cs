@@ -5,7 +5,7 @@ using W = System.Windows;
 
 namespace ScreenVersusWpf
 {
-    public struct ScreenPoint : IEquatable<ScreenPoint>
+    public struct ScreenPoint : IScreenStruct<ScreenPoint, W.Point>
     {
         public int X { get; set; }
         public int Y { get; set; }
@@ -32,10 +32,10 @@ namespace ScreenVersusWpf
         public static explicit operator D.Point(ScreenPoint pt) => new D.Point(pt.X, pt.Y);
         public static explicit operator ScreenPoint(D.Point pt) => new ScreenPoint(pt.X, pt.Y);
 
-        public W.Point ToVisual(W.Media.Visual visual) => DpiContext.FromVisual(visual).ToWorldPoint(this);
-        public W.Point ToScreen(ScreenInfo screen) => DpiContext.FromScreen(screen).ToWorldPoint(this);
-        public W.Point ToScreen(IntPtr hMonitor) => DpiContext.FromScreen(hMonitor).ToWorldPoint(this);
-        public W.Point ToPrimaryScreen() => DpiContext.FromPrimaryScreen().ToWorldPoint(this);
+        //public W.Point ToVisual(W.Media.Visual visual) => DpiContext.FromVisual(visual).ToWorldPoint(this);
+        //public W.Point ToDisplay(DisplayInfo display) => DpiContext.FromDisplay(display).ToWorldPoint(this);
+        //public W.Point ToDisplay(IntPtr hMonitor) => DpiContext.FromDisplay(hMonitor).ToWorldPoint(this);
+        //public W.Point ToPrimaryDisplay() => DpiContext.FromPrimaryDisplay().ToWorldPoint(this);
 
         public static ScreenPoint operator -(ScreenPoint point) => new ScreenPoint(-point.X, -point.Y);
         public static ScreenPoint operator +(ScreenPoint point, int add) => new ScreenPoint(point.X + add, point.Y + add);

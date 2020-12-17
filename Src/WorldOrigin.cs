@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ScreenVersusWpf
 {
@@ -12,13 +8,13 @@ namespace ScreenVersusWpf
     public enum WorldOrigin
     {
         /// <summary>
-        /// The world origin will be in the top left of the virtual screen
-        /// </summary>
-        VirtualTopLeft = 0,
-
-        /// <summary>
         /// The world origin will be in the top left of the primary screen
         /// </summary>
-        PrimaryTopLeft = 1,
+        PrimaryTopLeft = 0,
+
+        /// <summary>
+        /// The world origin will be in the top left of the virtual screen
+        /// </summary>
+        VirtualTopLeft = 1,
     }
 }

@@ -5,7 +5,7 @@ using W = System.Windows;
 
 namespace ScreenVersusWpf
 {
-    public struct ScreenRect : IEquatable<ScreenRect>
+    public struct ScreenRect : IScreenStruct<ScreenRect, W.Rect>
     {
         public int X { get => Left; set => Left = value; }
         public int Y { get => Top; set => Top = value; }
@@ -19,7 +19,7 @@ namespace ScreenVersusWpf
         public ScreenPoint TopRight => new ScreenPoint(Right, Top);
         public ScreenPoint BottomRight => new ScreenPoint(Right, Bottom);
         public ScreenPoint BottomLeft => new ScreenPoint(Left, Bottom);
-
+        public ScreenPoint Center => new ScreenPoint(Left + Width / 2, Top + Height / 2);
         public static ScreenRect Empty => new ScreenRect(0, 0, 0, 0);
 
         public ScreenRect(D.Rectangle rect) : this(rect.X, rect.Y, rect.Width, rect.Height) { }
@@ -52,18 +52,17 @@ namespace ScreenVersusWpf
         public static explicit operator D.Rectangle(ScreenRect rect) => new D.Rectangle(rect.Left, rect.Top, rect.Width, rect.Height);
         public static explicit operator ScreenRect(D.Rectangle rect) => new ScreenRect(rect.X, rect.Y, rect.Width, rect.Height);
         public static ScreenRect FromLTRB(int left, int top, int right, int bottom) => new ScreenRect(left, top, right - left, bottom - top);
-        internal static ScreenRect FromLTRB(Sys.RECT rect) => FromLTRB(rect.left, rect.top, rect.right, rect.bottom);
 
-        public W.Rect ToVisual(W.Media.Visual visual) => DpiContext.FromVisual(visual).ToWorldRect(this);
-        public W.Rect ToScreen(ScreenInfo screen) => DpiContext.FromScreen(screen).ToWorldRect(this);
-        public W.Rect ToScreen(IntPtr hMonitor) => DpiContext.FromScreen(hMonitor).ToWorldRect(this);
-        public W.Rect ToPrimaryScreen() => DpiContext.FromPrimaryScreen().ToWorldRect(this);
+        //public W.Rect ToVisual(W.Media.Visual visual) => DpiContext.FromVisual(visual).ToWorldRect(this);
+        //public W.Rect ToDisplay(DisplayInfo display) => DpiContext.FromDisplay(display).ToWorldRect(this);
+        //public W.Rect ToDisplay(IntPtr hMonitor) => DpiContext.FromDisplay(hMonitor).ToWorldRect(this);
+        //public W.Rect ToPrimaryDisplay() => DpiContext.FromPrimaryDisplay().ToWorldRect(this);
 
         public bool Contains(ScreenPoint pt) => pt.X >= Left && pt.X < Right && pt.Y >= Top && pt.Y < Bottom;
 
         public bool IntersectsWith(ScreenRect rect)
         {
-            // Touching ScreenRects do not intersect (different to WpfRect)
+            // Touching ScreenRects do not intersect
             return !IsEmpty() && !rect.IsEmpty() && Left < rect.Right && rect.Left < Right && Top < rect.Bottom && rect.Top < Bottom;
         }
 
