@@ -38,6 +38,7 @@
   <ItemGroup>
     <Compile Include="DpiContext.cs" />
     <Compile Include="DisplayInfo.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="IScreenStruct.cs" />
     <Compile Include="Native\Structs.cs" />
     <Compile Include="Native\WinAPI.cs" />

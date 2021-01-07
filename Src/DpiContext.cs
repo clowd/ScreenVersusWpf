@@ -61,6 +61,44 @@ namespace ScreenVersusWpf
             WorldOffsetY = originY;
         }
 
+        //public static DpiContext FromWindow(Window window) => FromWindow(window, WindowInfo.FromWindow(window).ClientArea.TopLeft);
+        //public static DpiContext FromWindow(Window window, WorldOrigin origin) => FromWindow(window, GetOriginPt(origin));
+        //public static DpiContext FromWindow(Window window, ScreenPoint origin) => FromWindow(window, origin.X, origin.Y);
+        //public static DpiContext FromWindow(Window window, int originX, int originY)
+        //{
+        //    PresentationSource source = PresentationSource.FromVisual(window);
+        //    var dx = (int)Math.Round(96.0d * source.CompositionTarget.TransformToDevice.M11);
+        //    var dy = (int)Math.Round(96.0d * source.CompositionTarget.TransformToDevice.M22);
+        //    return new DpiContext(dx, dy, originX, originY);
+        //}
+
+        public static DpiContext FromVisual(Visual visual)
+        {
+            var origin = visual.PointToScreen(new Point(0, 0));
+            return FromVisual(visual, (int)origin.X, (int)origin.Y);
+
+            //PresentationSource inputSource = PresentationSource.FromVisual(visual);
+            //if (inputSource == null)
+            //    throw new InvalidOperationException("No presentation source could be found, ensure the visual and window exists.");
+
+            //// Translate the point from the visual to the root.
+            //GeneralTransform gUp = visual.TransformToAncestor(inputSource.RootVisual);
+            //var point = new Point(0, 0);
+            //if (gUp == null || !gUp.TryTransform(point, out point))
+            //    throw new InvalidOperationException("An internal error ocurred while mapping visual point to screen");
+
+            //// Translate the point from the root to the screen
+            //point = ApplyVisualTransform(point, presentationSource.RootVisual, false);
+
+            //// Convert from measure units into pixels.
+            //point = presentationSource.CompositionTarget.TransformToDevice.Transform(point);
+
+
+            //point = PointUtil.ClientToScreen(point, inputSource);
+
+            //return point;
+        }
+
         /// <summary>
         /// Creates a DpiContext using the current transformation matrix of the specified visual. This can only be used if the CompositionTarget already exists, 
         /// so is likely to throw if used from within a window constructor before it is rendered.
@@ -84,6 +122,9 @@ namespace ScreenVersusWpf
             var dy = (int)Math.Round(96.0d * source.CompositionTarget.TransformToDevice.M22);
             return new DpiContext(dx, dy, originX, originY);
         }
+
+        /*
+
 
         /// <summary>
         /// Creates a DpiContext using the System DPI, which is based on the DPI of the primary display.
@@ -142,6 +183,8 @@ namespace ScreenVersusWpf
         /// how points will be translated when converting from world to screen space and back
         /// </summary>
         public static DpiContext FromDisplay(DisplayInfo display, int originX, int originY) => FromDisplay(display.Handle, originX, originY);
+
+        */
 
         private static Func<double, double> GetRoundingFn(WorldRoundingMode roundingMode)
         {

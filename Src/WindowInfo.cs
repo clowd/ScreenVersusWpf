@@ -25,6 +25,12 @@ namespace ScreenVersusWpf
         public static WindowInfo FromWindow(Window hWnd) => FromWindow(new WindowInteropHelper(hWnd).Handle);
 
         /// <summary>
+        /// Creates a new instance of WindowInfo from the specified WPF window, and if set, also ensures the window handle has been created
+        /// </summary>
+        public static WindowInfo FromWindow(Window hWnd, bool ensureHandle)
+            => ensureHandle ? FromWindow(new WindowInteropHelper(hWnd).EnsureHandle()) : FromWindow(hWnd);
+
+        /// <summary>
         /// Creates a new instance of WindowInfo from the specified window handle
         /// </summary>
         public static WindowInfo FromWindow(IntPtr hWnd) => new WindowInfo(hWnd);

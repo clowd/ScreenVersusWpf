@@ -145,7 +145,6 @@ namespace ScreenVersusWpf.Native
             bottom = rect.Y + rect.Height
         };
 
-
         //public static implicit operator D.Rectangle(RECT rect)
         //{
         //    return new D.Rectangle(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
