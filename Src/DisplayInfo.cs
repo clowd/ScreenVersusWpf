@@ -1,4 +1,4 @@
-﻿using ScreenVersusWpf.Native;
+﻿using ScreenVersusWpf.Interop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -100,6 +100,8 @@ namespace ScreenVersusWpf
         /// Gets the working area of the display. The working area is the desktop area of the display, excluding taskbars, docked windows, and docked tool bars.
         /// </summary>
         public ScreenRect WorkingArea => IsVirtual ? WinAPI.GetVirtualWorkArea() : WinAPI.GetMonitorInfo(_hMonitor).rcWork;
+
+        public DpiContext DpiContext => new DisplayDpiContext(_hMonitor);
 
         //public DpiContext GetDpiContext(WorldOrigin origin) => DpiContext.FromDisplay(this, origin);
         //public DpiContext GetDpiContext(ScreenPoint origin) => DpiContext.FromDisplay(this, origin);

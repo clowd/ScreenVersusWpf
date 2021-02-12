@@ -19,5 +19,9 @@ namespace ScreenVersusWpf
         /// Round world coordinates using Math.Floor(double)
         /// </summary>
         Floor = 2,
+        /// <summary>
+        /// Round up for .75 and above, floor for below.
+        /// </summary>
+        RoundPreferFloor = 3,
     }
 }

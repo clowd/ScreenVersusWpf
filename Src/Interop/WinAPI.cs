@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace ScreenVersusWpf.Native
+namespace ScreenVersusWpf.Interop
 {
     internal static class WinAPI
     {
@@ -21,11 +21,23 @@ namespace ScreenVersusWpf.Native
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern bool SystemParametersInfo(int nAction, int nParam, out RECT rc, int nUpdate);
 
+        public static ScreenPoint GetMouseScreenPosition()
+        {
+            var w32Mouse = new POINT();
+            var success = GetCursorPos(ref w32Mouse);
+            if (!success)
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            return new ScreenPoint(w32Mouse.x, w32Mouse.y);
+        }
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetCursorPos(ref POINT pt);
+
         private static void EnsureProcessDPIAwareness()
         {
             bool IsWindowsVistaOrLater = Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.OSVersion.Version >= new Version(6, 0, 0);
             bool IsDesignMode = DesignerProperties.GetIsInDesignMode(new System.Windows.DependencyObject()) || LicenseManager.UsageMode == LicenseUsageMode.Designtime;
-
 
             if (!IsWindowsVistaOrLater)
                 return;

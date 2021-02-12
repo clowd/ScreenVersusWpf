@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace ScreenVersusWpf.Native
+namespace ScreenVersusWpf.Interop
 {
     internal enum MONITOR_FLAGS : int
     {
