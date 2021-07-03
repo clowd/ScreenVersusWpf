@@ -1,0 +1,44 @@
+2021-07-03 21:59:31.698 +01:00 [INF] Loaded 3 extensions
+2021-07-03 21:59:32.316 +01:00 [INF] MSBuild registered from C:\Program Files\dotnet\sdk\5.0.202\
+2021-07-03 21:59:33.813 +01:00 [INF] Initializing upgrade step Select an entrypoint
+2021-07-03 21:59:33.816 +01:00 [INF] Setting entrypoint to only project in solution: C:\Source\Clowd\clowd-windows\modules\ScreenVersusWpf\Src\ScreenVersusWpf.csproj
+2021-07-03 21:59:33.821 +01:00 [INF] Initializing upgrade step Select project to upgrade
+2021-07-03 21:59:33.836 +01:00 [INF] Initializing upgrade step Back up project
+2021-07-03 21:59:36.156 +01:00 [INF] Applying upgrade step Back up project
+2021-07-03 21:59:37.133 +01:00 [INF] Backing up C:\Source\Clowd\clowd-windows\modules\ScreenVersusWpf\Src to C:\Source\Clowd\clowd-windows\modules\ScreenVersusWpf\Src.backup
+2021-07-03 21:59:37.139 +01:00 [WRN] Could not copy file C:\Source\Clowd\clowd-windows\modules\ScreenVersusWpf\Src\log.txt due to 'The process cannot access the file 'C:\Source\Clowd\clowd-windows\modules\ScreenVersusWpf\Src\log.txt' because it is being used by another process.'
+2021-07-03 21:59:37.163 +01:00 [INF] Project backed up to C:\Source\Clowd\clowd-windows\modules\ScreenVersusWpf\Src.backup
+2021-07-03 21:59:37.164 +01:00 [INF] Upgrade step Back up project applied successfully
+2021-07-03 21:59:43.931 +01:00 [INF] Initializing upgrade step Convert project file to SDK style
+2021-07-03 21:59:45.126 +01:00 [INF] Applying upgrade step Convert project file to SDK style
+2021-07-03 21:59:45.130 +01:00 [INF] Converting project file format with try-convert, version 0.7.226301
+2021-07-03 21:59:45.743 +01:00 [INF] [dotnet] Conversion complete!
+2021-07-03 21:59:46.120 +01:00 [INF] Project file converted successfully! The project may require additional changes to build successfully against the new .NET target.
+2021-07-03 21:59:46.975 +01:00 [INF] Upgrade step Convert project file to SDK style applied successfully
+2021-07-03 21:59:48.392 +01:00 [INF] Initializing upgrade step Clean up NuGet package references
+2021-07-03 21:59:49.222 +01:00 [INF] Reference to .NET Upgrade Assistant analyzer package (Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers, version 0.2.233001) needs added
+2021-07-03 21:59:49.227 +01:00 [INF] Packages to be added: Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers, Version=0.2.233001
+2021-07-03 21:59:50.238 +01:00 [INF] Applying upgrade step Clean up NuGet package references
+2021-07-03 21:59:50.246 +01:00 [INF] Adding package reference: Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers, Version=0.2.233001
+2021-07-03 21:59:51.298 +01:00 [INF] Upgrade step Clean up NuGet package references applied successfully
+2021-07-03 21:59:53.079 +01:00 [INF] Initializing upgrade step Update TFM
+2021-07-03 21:59:53.088 +01:00 [INF] TFM needs updated to net5.0-windows
+2021-07-03 21:59:53.915 +01:00 [INF] Applying upgrade step Update TFM
+2021-07-03 21:59:55.099 +01:00 [INF] Updated TFM to net5.0-windows
+2021-07-03 21:59:55.099 +01:00 [INF] Upgrade step Update TFM applied successfully
+2021-07-03 21:59:55.101 +01:00 [INF] Initializing upgrade step Update NuGet Packages
+2021-07-03 21:59:56.035 +01:00 [INF] Adding Microsoft.Windows.Compatibility 5.0.2
+2021-07-03 21:59:56.037 +01:00 [INF] Packages to be added: Microsoft.Windows.Compatibility, Version=5.0.2
+2021-07-03 21:59:56.042 +01:00 [INF] Applying upgrade step Update NuGet Packages
+2021-07-03 21:59:56.043 +01:00 [INF] Adding package reference: Microsoft.Windows.Compatibility, Version=5.0.2
+2021-07-03 21:59:57.335 +01:00 [INF] Upgrade step Update NuGet Packages applied successfully
+2021-07-03 21:59:57.337 +01:00 [INF] Initializing upgrade step Add template files
+2021-07-03 21:59:57.342 +01:00 [INF] 0 expected template items needed
+2021-07-03 21:59:57.345 +01:00 [INF] Initializing upgrade step Update source code
+2021-07-03 21:59:58.459 +01:00 [INF] Initializing upgrade step Move to next project
+2021-07-03 21:59:58.476 +01:00 [INF] Applying upgrade step Move to next project
+2021-07-03 21:59:58.477 +01:00 [INF] Upgrade step Move to next project applied successfully
+2021-07-03 22:00:01.115 +01:00 [INF] Initializing upgrade step Finalize upgrade
+2021-07-03 22:00:02.853 +01:00 [INF] Applying upgrade step Finalize upgrade
+2021-07-03 22:00:02.856 +01:00 [INF] Upgrade step Finalize upgrade applied successfully
+2021-07-03 22:00:05.620 +01:00 [INF] Upgrade has completed. Please review any changes.
